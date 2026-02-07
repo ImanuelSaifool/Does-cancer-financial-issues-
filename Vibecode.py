@@ -7,9 +7,9 @@ from sklearn.metrics import mean_squared_error
 from sklearn.metrics import r2_score, accuracy_score
 # ----------------------------------------------------------------------------------------------------------------------------------------------
 # database
-df2021 = pd.read_csv(r"C:\Users\imanu\OneDrive\Desktop\Coding Projects\h251.csv")
-df2022 = pd.read_csv(r"C:\Users\imanu\OneDrive\Desktop\Coding Projects\h243.csv")
-df2023 = pd.read_csv(r"C:\Users\imanu\OneDrive\Desktop\Coding Projects\h233.csv")
+df2021 = pd.read_csv(r"https://github.com/ImanuelSaifool/Does-cancer-financial-issues-/blob/Imanuel's-Test-site/2021_data_part1.csv")
+df2022 = pd.read_csv(r"https://github.com/ImanuelSaifool/Does-cancer-financial-issues-/blob/Imanuel's-Test-site/2022%20data.csv")
+df2023 = pd.read_csv(r"https://github.com/ImanuelSaifool/Does-cancer-financial-issues-/blob/Imanuel's-Test-site/2023%20data.csv")
 main_df = pd.concat([df2021, df2022, df2023], axis=0)
 
 # filter-rooster
@@ -91,4 +91,5 @@ strengths = [100, rf2.feature_importances_[0]*100, acc_link3*100]
 
 plt.figure(figsize=(10, 5))
 plt.plot(links, strengths, marker='o', linestyle='-', color='b')
+
 plt.title("The Causal Chain: Path Analysis")
