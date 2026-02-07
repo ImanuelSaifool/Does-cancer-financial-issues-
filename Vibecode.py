@@ -41,7 +41,9 @@ def is_unable(row):
     else:
         return np.nan
 # ----------------------------------------------------------------------------------------------------------------------------------------------
-
+# ==========================================
+# FIRST: Finding the relationship between age and quitting
+# ==========================================
 clean_df['HIT_BARRIER'] = clean_df.apply(is_unable, axis=1)
 
 # drop rows where we don't know the answer
@@ -73,6 +75,33 @@ plt.show()
 # ----------------------------------------------------------------------------------------------------------------------------------------------
 
 # ==========================================
-# SECOND: Comparing between Different Cancer Types
+# SECOND: Finding the relationship between sex and quitting
 # ==========================================
 
+# define variables
+y1 = cancer_df["TOTSLF"] # for good luck, you define the y first
+x1 = cancer_df[["CANCERDX"]]
+
+# splitting training and testing data (pareto's rule)
+X1_train, X1_test, y1_train, y1_test = train_test_split(x1, y1, test_size=0.2, random_state=88)
+
+# do the random forest gahh
+rf1 = RandomForestRegressor(n_estimators=100, random_state=88)
+
+# fit the data first
+rf1.fit(X1_train, y1_train)
+importances = rf1.feature_importances_
+print(f"Feature Importances (Income vs Cost): {importances}")
+
+avg_cost_cancer = main_df[main_df['CANCERDX']==1]['TOTSLF'].mean()
+avg_cost_healthy = main_df[main_df['CANCERDX']==0]['TOTSLF'].mean()
+
+print(f"Average Cost for Cancer Patients: ${avg_cost_cancer:,.2f}")
+print(f"Average Cost for Others:          ${avg_cost_healthy:,.2f}")
+print(f"Link Confirmed: Cancer patients pay {avg_cost_cancer/avg_cost_healthy:.1f}x more.")
+
+# ----------------------------------------------------------------------------------------------------------------------------------------------
+
+# ==========================================
+# THIRD: Finding the relationship between cost, income, insurance, family member, quitting
+# ==========================================
