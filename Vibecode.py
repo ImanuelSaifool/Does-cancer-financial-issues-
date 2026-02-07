@@ -5,52 +5,74 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.ensemble import RandomForestClassifier #for categorical data, you wanna use RandomForestClassifier
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import r2_score, accuracy_score
+from sklearn.linear_model import LogisticRegression
+import seaborn as sns
+import matplotlib.pyplot as plt
+import numpy as np
+
 # ----------------------------------------------------------------------------------------------------------------------------------------------
-# datasets
+# dataset's entrance into this world
 df2021p1 = pd.read_csv("https://raw.githubusercontent.com/ImanuelSaifool/Does-cancer-financial-issues-/Imanuel's-Test-site/2021_data_part1.csv")
 df2021p2 = pd.read_csv("https://raw.githubusercontent.com/ImanuelSaifool/Does-cancer-financial-issues-/Imanuel's-Test-site/2021_data_part2.csv")
-df2022 = pd.read_csv("https://raw.githubusercontent.com/ImanuelSaifool/Does-cancer-financial-issues-/Imanuel's-Test-site/2022_data.csv")
-df2023 = pd.read_csv("https://raw.githubusercontent.com/ImanuelSaifool/Does-cancer-financial-issues-/Imanuel's-Test-site/2023_data.csv")
+df2022 = pd.read_csv("https://raw.githubusercontent.com/ImanuelSaifool/Does-cancer-financial-issues-/Imanuel's-Test-site/2022%20data.csv")
+df2023 = pd.read_csv("https://raw.githubusercontent.com/ImanuelSaifool/Does-cancer-financial-issues-/Imanuel's-Test-site/2023%20data.csv")
 
+# renaming stuff
+df2021p1 = df2021p1.rename(columns={"TOTSLF21": "TOTSLF"})
+df2021p2 = df2021p2.rename(columns={"TOTSLF21": "TOTSLF"}) 
+df2022 = df2022.rename(columns={"TOTSLF22": "TOTSLF"})
+df2023 = df2023.rename(columns={"TOTSLF23": "TOTSLF"})
+
+# combining them
 main_df = pd.concat([df2021p1, df2021p2, df2022, df2023], axis=0)
 
 # data filter
-cancer_df = main_df[main_df['CANCERDX'] == 1].copy() 
-cancer_df = cancer_df[(cancer_df["FAMINC"] > 0) & (cancer_df["K6SUM42"] >= 0)]
+clean_df = main_df[main_df['CANCERDX'] == 1].copy() 
+
+def is_unable(row):
+    # Check all three rounds
+    rounds = [row.get('UNABLE31'), row.get('UNABLE42'), row.get('UNABLE53')]
+    
+    # If ANY round is 1 (Yes), they faced a barrier
+    if 1 in rounds:
+        return 1
+    elif all(r == 2 or pd.isna(r) or r < 0 for r in rounds): 
+        return 0
+    else:
+        return np.nan
 # ----------------------------------------------------------------------------------------------------------------------------------------------
-# =====================================================
-# First: Evaluation of Causes for quitting
-# =====================================================
-# define variables
-y1 = cancer_df["TOTSLF"] # for good luck, you define the y first
-x1 = cancer_df[["CANCERDX"]]
 
-# splitting training and testing data (pareto's rule)
-X1_train, X1_test, y1_train, y1_test = train_test_split(x1, y1, test_size=0.2, random_state=88)
+clean_df['HIT_BARRIER'] = clean_df.apply(is_unable, axis=1)
 
-# do the random forest gahh
-rf1 = RandomForestRegressor(n_estimators=100, random_state=88)
+# drop rows where we don't know the answer
+clean_df = clean_df.dropna(subset=['HIT_BARRIER', 'AGELAST'])
 
-# fit the data first
-rf1.fit(X1_train, y1_train)
-importances = rf1.feature_importances_
-print(f"Feature Importances (Income vs Cost): {importances}")
+# defining variables and doing a logistic regression
+X = clean_df[["AGELAST"]]
+y = clean_df["HIT_BARRIER"]
 
-avg_cost_cancer = main_df[main_df['CANCERDX']==1]['TOTSLF'].mean()
-avg_cost_healthy = main_df[main_df['CANCERDX']==0]['TOTSLF'].mean()
+log_reg = LogisticRegression()
+log_reg.fit(X, y)
 
-print(f"Average Cost for Cancer Patients: ${avg_cost_cancer:,.2f}")
-print(f"Average Cost for Others:          ${avg_cost_healthy:,.2f}")
-print(f"Link Confirmed: Cancer patients pay {avg_cost_cancer/avg_cost_healthy:.1f}x more.")
-#---------------------------------------------------------------------------------------------------------------------------------------------
+# presenting the result
+print(f"Age Coefficient: {log_reg.coef_[0][0]:.4f}")
+
+sns.regplot(x='AGELAST', y='HIT_BARRIER', data=clean_df, 
+            logistic=True, 
+            ci=95, # This adds a shaded 'confidence interval' (very good for your report!)
+            scatter_kws={'alpha':0.05, 'color': 'navy'}, # Makes the raw data points transparent
+            line_kws={'color': 'red', 'lw': 3}) # Makes the regression line bold and red
+
+# Labeling of the graph
+plt.title('Probability of Facing Treatment Barriers vs. Age', fontsize=14)
+plt.xlabel('Age of Patient', fontsize=12)
+plt.ylabel('Probability of Hitting a Barrier (0.0 to 1.0)', fontsize=12)
+plt.ylim(-0.05, 1.05) # Keeps the y-axis strictly between 0 and 1
+plt.show()
+
+# ----------------------------------------------------------------------------------------------------------------------------------------------
+
 # ==========================================
-# FINAL VISUALIZATION
+# SECOND: Comparing between Different Cancer Types
 # ==========================================
-# Let's plot the "Chain of Events"
-links = ['Cancer -> $$', '$$ -> Depression', 'Depression -> Quit']
-# For visualization, we use normalized scores or simple boolean confirmations
-strengths = [100, rf2.feature_importances_[0]*100, acc_link3*100] 
 
-plt.figure(figsize=(10, 5))
-plt.plot(links, strengths, marker='o', linestyle='-', color='b')
-plt.title("The Causal Chain: Path Analysis")
