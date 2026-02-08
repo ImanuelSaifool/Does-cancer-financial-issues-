@@ -37,16 +37,11 @@ clean_df = main_df[main_df['CANCERDX'] == 1].copy()
 clean_df = clean_df[(clean_df[features] >= 0).all(axis=1)]
 
 def is_unable(row):
-    # Check all three rounds
-    rounds = [row.get('UNABLE31'), row.get('UNABLE42'), row.get('UNABLE53')]
-    
-    # If ANY round is 1 (Yes), they faced a barrier
-    if 1 in rounds:
-        return 1
-    elif all(r == 2 or pd.isna(r) or r < 0 for r in rounds): 
-        return 0
-    else:
-        return np.nan
+    # Change from physical inability to FINANCIAL inability
+    val = row.get('PYUNBL42')
+    if val == 1: return 1 # Yes, unable to pay
+    elif val == 2: return 0 # No, was able to pay
+    else: return np.nan
 
 clean_df['UNABLE'] = clean_df.apply(is_unable, axis=1)
 
@@ -82,28 +77,3 @@ print("\n--- THE SUBSIDY SIGNAL: Quitting Rates by Group ---")
 # This table proves if Public Insurance is working better than Uninsured
 policy_stats = clean_df.groupby('POLICY_GROUP')[['UNABLE', 'TOTSLF', 'FAMINC']].mean()
 print(policy_stats)
-
-# ==========================================
-# 5. VISUALIZATION (The "Money Shot")
-# ==========================================
-plt.figure(figsize=(10, 6))
-sns.set_style("whitegrid")
-
-# Bar Chart: Comparing Barriers to Care across Groups
-ax = sns.barplot(x='POLICY_GROUP', y='UNABLE', data=clean_df, 
-                 order=["Uninsured", "Public (Subsidized)", "Private (Market)"], 
-                 palette="RdBu")
-
-plt.title('Evaluating Subsidy Efficacy: Access Barriers by Insurance Type', fontsize=14)
-plt.ylabel('Probability of Being Unable to Access Care', fontsize=12)
-plt.xlabel('Policy Group', fontsize=12)
-
-# Add the actual % numbers on top of the bars for clarity
-for p in ax.patches:
-    ax.annotate(f'{p.get_height()*100:.1f}%', 
-                (p.get_x() + p.get_width() / 2., p.get_height()), 
-                ha = 'center', va = 'center', 
-                xytext = (0, 9), 
-                textcoords = 'offset points')
-
-plt.show()
