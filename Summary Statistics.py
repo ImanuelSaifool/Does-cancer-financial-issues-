@@ -79,4 +79,3 @@ print("\n--- THE SUBSIDY SIGNAL: Quitting Rates by Group ---")
 # This table proves if Public Insurance is working better than Uninsured
 policy_stats = clean_df.groupby('POLICY_GROUP')[['UNABLE', 'TOTSLF', 'FAMINC']].mean()
 print(policy_stats)
-
