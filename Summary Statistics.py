@@ -115,11 +115,12 @@ main_df = pd.concat([df2019, df2020, df2021p1, df2021p2, df2022, df2023], axis=0
 # 3. FILTERING & CLEANING
 # ----------------------------------------------------------------------------------------------------------------------------------------------
 # Define feature lists
-demog_features = ["FAMINC", "TOTSLF", "AGELAST", "SEX", "DLAYCA42", "AFRDCA42", "DLAYPM42", "AFRDPM42"]
+demog_features = ["FAMINC", "TOTSLF", "AGELAST", "SEX"]
+adherance_features = ["DLAYCA42", "AFRDCA42", "DLAYPM42", "AFRDPM42"]
 cancer_features = ["CABLADDR", "CABREAST", "CACERVIX", "CACOLON", "CALUNG", "CALYMPH", "CAMELANO", "CAOTHER", "CAPROSTA", "CASKINNM", "CASKINDK", "CAUTERUS"]
 other_disease_features = ["DIABDX_M18", "HIBPDX", "CHDDX", "ANGIDX", "MIDX", "OHRTDX", "STRKDX", "CHOLDX", "EMPHDX", "ASTHDX", "CHBRON31", "ARTHDX"]
 insurance_features = ["TOTMCR", "TOTMCD", "TOTVA", "TOTOFD", "TOTSTL", "TOTWCP"]
-features = demog_features + cancer_features + other_disease_features
+features = demog_features + cancer_features + other_disease_features + adherance_features
 
 cancer_map = {
     "CABLADDR": "Bladder Cancer",
@@ -150,6 +151,7 @@ disease_map = {
     "ANGIDX": "Angina",
     "CHBRON31": "Chronic Bronchitis"
 }
+# yah
 
 
 # Filter for positive cancer diagnosis and public health insurance
