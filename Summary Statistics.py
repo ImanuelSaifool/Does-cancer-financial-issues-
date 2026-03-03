@@ -20,7 +20,7 @@ df2023 = pd.read_csv("https://raw.githubusercontent.com/ImanuelSaifool/Does-canc
 # 2. Standardizing column names
     # we do this so that we can easily integrate multiple data files without changing the name on the raw data
 # ----------------------------------------------------------------------------------------------------------------------------------------------
-
+# aaaaa
 # Treating inflation
     # Family income
 df2019["FAMINC19"] = df2019["FAMINC19"] * 1.19
