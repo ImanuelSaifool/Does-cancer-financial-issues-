@@ -59,7 +59,6 @@ df2021['TOTSLF'] = df2021['TOTSLF'] * 1.12
 df2022['FAMINC'] = df2022['FAMINC'] * 1.04
 df2022['TOTSLF'] = df2022['TOTSLF'] * 1.04
 
-# Explicitly renaming core variables AND the SDoH variables so they stack properly across all 10 years
 df2014 = df2014.rename(columns={"TOTSLF14": "TOTSLF", "FAMINC14": "FAMINC", "TOTMCD14": "TOTMCD", "TOTMCR14": "TOTMCR", "TOTVA14": "TOTVA", "TOTTRI14": "TOTTRI", "TOTOFD14": "TOTOFD", "TOTSTL14": "TOTSTL", "REGION14": "REGION", "PRVEV14": "PRVEV", "POVCAT14": "POVCAT", "FOODST14": "FOODST", "DDNWRK14": "DDNWRK", "FAMSZE14": "FAMSZE"})
 df2015 = df2015.rename(columns={"TOTSLF15": "TOTSLF", "FAMINC15": "FAMINC", "TOTMCD15": "TOTMCD", "TOTMCR15": "TOTMCR", "TOTVA15": "TOTVA", "TOTTRI15": "TOTTRI", "TOTOFD15": "TOTOFD", "TOTSTL15": "TOTSTL", "REGION15": "REGION", "PRVEV15": "PRVEV", "POVCAT15": "POVCAT", "FOODST15": "FOODST", "DDNWRK15": "DDNWRK", "FAMSZE15": "FAMSZE"})
 df2016 = df2016.rename(columns={"TOTSLF16": "TOTSLF", "FAMINC16": "FAMINC", "TOTMCD16": "TOTMCD", "TOTMCR16": "TOTMCR", "TOTVA16": "TOTVA", "TOTTRI16": "TOTTRI", "TOTOFD16": "TOTOFD", "TOTSTL16": "TOTSTL", "REGION16": "REGION", "PRVEV16": "PRVEV", "POVCAT16": "POVCAT", "FOODST16": "FOODST", "DDNWRK16": "DDNWRK", "FAMSZE16": "FAMSZE"})
@@ -71,18 +70,53 @@ df2021 = df2021.rename(columns={"TOTSLF21": "TOTSLF", "FAMINC21": "FAMINC", "TOT
 df2022 = df2022.rename(columns={"TOTSLF22": "TOTSLF", "FAMINC22": "FAMINC", "TOTMCD22": "TOTMCD", "TOTMCR22": "TOTMCR", "TOTVA22": "TOTVA", "TOTTRI22": "TOTTRI", "TOTOFD22": "TOTOFD", "TOTSTL22": "TOTSTL", "REGION22": "REGION", "PRVEV22": "PRVEV", "POVCAT22": "POVCAT", "FOODST22": "FOODST", "DDNWRK22": "DDNWRK", "FAMSZE22": "FAMSZE"})
 df2023 = df2023.rename(columns={"TOTSLF23": "TOTSLF", "FAMINC23": "FAMINC", "TOTMCD23": "TOTMCD", "TOTMCR23": "TOTMCR", "TOTVA23": "TOTVA", "TOTTRI23": "TOTTRI", "TOTOFD23": "TOTOFD", "TOTSTL23": "TOTSTL", "REGION23": "REGION", "PRVEV23": "PRVEV", "POVCAT23": "POVCAT", "FOODST23": "FOODST", "DDNWRK23": "DDNWRK", "FAMSZE23": "FAMSZE"})
 
-# Combining datasets safely
 main_df = pd.concat([df2014, df2015, df2016, df2017, df2018, df2019, df2020, df2021, df2022, df2023], axis=0)
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------
-# 3. FILTERING
+# 3. LABELLING
 # ----------------------------------------------------------------------------------------------------------------------------------------------
-demog_features = ["FAMINC", "TOTSLF", "AGELAST", "SEX", "REGION"]
-adherance_features = ["DLAYCA42", "AFRDCA42", "DLAYPM42", "AFRDPM42"]
+    # 3a. Demog/Status -------------------------------------------------------------------------------------------------------------------------
+demog_features = ["TOTSLF", "AGELAST", "SEX", "REGION", "RACEV1X", "RACEV2X"]
+status_features = ["PSTAT31", "PSTAT43", "PSTAT53"]
+marriage_features = ["MARRY31X", "MARRY42X", "MARRY53X"]
+military_features = ["ACTDTY31", "ACTDTY42", "ACTDTY53"]
+work_features = ["DDNWRK23", "EMPST31", "EMPST42", "EMPST53", "EVRWRK"]
+income_features = ["TTLP23X", "FAMINC", "POVCAT23", "POVLEV23"]
+wage_features = ["HRWG31X", "HRWG42X", "HRWG53X"]
+how_wage_features = ["HRHOW31", "HRHOW42", "HRHOW53"]
+wage_change_features = ["DIFFWG31", "DIFFWG42", "DIFFWG53"]
+foodstamps_features = ["FOODST23", "FOODMN23", "FOODVL23"]
+social_security_features = ["SSECP23X"]
+veteran_income = ["VETSP23X"]
+child_support_income = ["CHLDP23X"]
+
+    # 3b. Cancer -------------------------------------------------------------------------------------------------------------------------------
 cancer_features = ["CABLADDR", "CABREAST", "CACERVIX", "CACOLON", "CALUNG", "CALYMPH", "CAMELANO", "CAOTHER", "CAPROSTA", "CASKINNM", "CASKINDK", "CAUTERUS"]
-other_disease_features = ["DIABDX_M18", "HIBPDX", "CHDDX", "ANGIDX", "MIDX", "OHRTDX", "STRKDX", "CHOLDX", "EMPHDX", "ASTHDX", "CHBRON31", "ARTHDX"]
-insurance_features = ["TOTMCD", "TOTMCR", "TOTVA", "TOTTRI", "TOTOFD", "TOTSTL"]
+
+    # 3c. Comorbidities ------------------------------------------------------------------------------------------------------------------------
+other_disease_features = ["OHRTDX", "STRKDX", "CHOLDX", "EMPHDX", "ASTHDX", "CHBRON31", "ARTHDX"]
+coronary_heart_disease_features = ["CHDDX", "CHDAGED"]
+high_blood_pressure_features = ["HIBPAGED", "HIBPDX", "BPMLDX"]
+angina_features = ["ANGIDX", "ANGIAGED"]
+heart_attack_features = ["MIDX", "MIAGED", "OHRTAGED", "OHRTTYPE"]
+diabetes_features = ["DIABDX_M18", "DIABAGED"]
+joint_features = ["JTPAIN31_M18", "ARTHDX", "ARTHTYPE", "ARTHAGED"]
+asthma_features = ["ASTHDX", "ASTHAGED", "ASSTIL31", "ASATAK31", "ASTHEP31"]
+adhd_features = ["ADHDADDX", "ADHDAGED"]
+meantal_health_features = ["MNHLTH31", "MNHLTH42", "MNHLTH53", "UNHAP42", "ADSAD42" "HAVFUN42", "NERVAF42", "ADNERV42", "ADHOPE42", "ADWRTH42", "ADDPRS42", "PHQ242"]
+physical_ability-features = ["ACTLIM31", "AIDHLP31", "WLKLIM31", "LFTDIF31", "STPDIF31", "WLKDIF31", "MILDIF31", "STNDIF31", "BENDIF31", "RCHDIF31", "FNGRDF31"]
+
+    # 3d. Insurance ---------------------------------------------------------------------------------------------------------------------------
+insurance_coverage_features = ["INSCOV23", "INSURC23"]
+insurance_type_features = ["TOTMCD", "TOTMCR", "TOTVA", "TOTTRI", "TOTOFD", "TOTSTL", "ADINSA42"]
+anytime_cover = ["TRICH31X", "TRICH42X"]
 medicaid = ["TOTMCD"]
+adherance_features = ["DLAYCA42", "AFRDCA42", "DLAYPM42", "AFRDPM42"]
+covered_by_tricare_features = ["TRIJA23X", "TRIFE23X", "TRIMA23X", "TRIAP23X", "TRIMY23X", "TRIJU23X", "TRIJL23X", "TRIAU23X", "TRISE23X", "TRIOC23X", "TRINO23X", "TRIDE23X"]
+covered_by_medicare_features = ["MCRJA23", "MCRFE23", "MCRMA23", "MCRAP23", "MCRMY23", "MCRJU23", "MCRJL23", "MCRAU23", "MCRSE23", "MCROC23", "MCRNO23", "MCRDE23"]
+covered_by_medicareorshcip_features = ["MCDJA23", "MCDFE23", "MCDMA23", "MCDAP23", "MCDMY23", "MCDJU23", "MCDJL23", "MCDAU23", "MCDSE23", "MCDOC23", "MCDNO23", "MCDDE23"]
+
+    # 3e. All ---------------------------------------------------------------------------------------------------------------------------
 features = demog_features + cancer_features + other_disease_features + adherance_features + insurance_features
 
 clean_df = main_df[(main_df['CANCERDX'] == 1) & (main_df['TOTMCD'] > 0)].copy()
