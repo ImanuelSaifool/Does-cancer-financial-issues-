@@ -4,13 +4,13 @@
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_svg.svg)](https://team8iscool.streamlit.app/)
 
 ## Project Overview
-This clinical decision support tool utilizes historical **Medical Expenditure Panel Survey (MEPS)** data to predict the required Medicaid subsidy allocation for oncology patients. The model identifies the intersection between financial burden, depressive symptoms, and treatment non-adherence to provide practitioners with a quantitative "financial toxicity" risk profile on Day 1 of diagnosis.
+This clinical decision support tool utilizes historical **Medical Expenditure Panel Survey (MEPS)** data to predict the required Medicaid subsidy allocation for cancer patients. The model identifies the intersection between financial burden, depressive symptoms, and treatment non-adherence to provide practitioners with a quantitative risk profile on after diagnosis and ongoing treatment.
 
 ## Clinical Impact
 Financial toxicity is a documented side effect of cancer treatment that directly correlates with treatment abandonment. This model provides three key clinical interventions:
 1. **Early Navigation:** Predicts statutory Medicaid eligibility and allocation before a patient incurs catastrophic debt.
-2. **Adherence Risk Profiling:** Uses SDoH (Social Determinants of Health) and PHQ-2 depression screeners to flag patients at high risk of quitting treatment.
-3. **Data-Driven Advocacy:** Aggregates predicted subsidy requirements to justify hospital grant applications and community resource funding.
+2. **Adherence Risk Profiling:** Uses SDoH (Social Determinants of Health) to flag patients at high risk of quitting treatment.
+3. **Data-Driven Advocacy:** Aggregates predicted subsidy requirements to justify hospital grant applications and community resource funding for at risk patients.
 
 ## Technical Stack
 - **Modeling:** Random Forest Regressor / HistGradientBoosting
