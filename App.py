@@ -9,16 +9,55 @@ import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
 
 # -------------------------------------------------------------------------
-# PAGE SETUP & CLINICAL THEME
+# PAGE SETUP & FORMAL CLINICAL THEME
 # -------------------------------------------------------------------------
-st.set_page_config(page_title="Financial Toxicity Risk Dashboard", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(page_title="MEPS Financial Toxicity Tool", layout="wide")
 
 st.markdown("""
     <style>
-    .block-container { padding-top: 2rem; padding-bottom: 2rem; }
-    h1 { color: #1E3A8A; font-size: 2.2rem; margin-bottom: 0rem; }
-    h3 { color: #334155; font-size: 1.2rem; margin-top: 1rem; }
-    .stMetric { background-color: #F8FAFC; padding: 15px; border-radius: 8px; border: 1px solid #E2E8F0; }
+    /* Base font to standard enterprise sans-serif */
+    html, body, [class*="st-"] {
+        font-family: Arial, Helvetica, sans-serif;
+    }
+    /* Formal serif for all headers */
+    h1, h2, h3, h4 {
+        font-family: 'Georgia', serif !important;
+        color: #1a252f !important;
+        font-weight: 500 !important;
+        border-bottom: 1px solid #c0c0c0;
+        padding-bottom: 4px;
+        margin-bottom: 16px;
+    }
+    /* Square off all buttons and inputs for a strict software feel */
+    .stButton>button {
+        background-color: #2c3e50;
+        color: #ffffff;
+        border-radius: 0px;
+        border: none;
+        font-family: Arial, sans-serif;
+        font-weight: 600;
+        padding: 10px 20px;
+    }
+    .stButton>button:hover {
+        background-color: #1a252f;
+        color: #ffffff;
+    }
+    div[data-baseweb="input"] > div, div[data-baseweb="select"] > div {
+        border-radius: 0px !important;
+    }
+    /* Override Streamlit's bright red and green boxes to slate gray */
+    div[data-testid="stAlert"] {
+        background-color: #f8f9fa;
+        color: #212529;
+        border: 1px solid #ced4da;
+        border-left: 5px solid #495057;
+        border-radius: 0px;
+    }
+    /* Metric styling */
+    div[data-testid="stMetricValue"] {
+        font-family: 'Georgia', serif;
+        color: #1a252f;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -32,76 +71,76 @@ try:
     selected_features_list = model_data['selected_features']
     X_train_selected = model_data['X_train_selected']
 except FileNotFoundError:
-    st.error("SYSTEM ERROR: 'meps_model_data.pkl' missing from deployment.")
+    st.error("System Error: 'meps_model_data.pkl' missing from deployment directory.")
     st.stop()
 
 # -------------------------------------------------------------------------
 # SIDEBAR: EHR CONTEXT
 # -------------------------------------------------------------------------
 with st.sidebar:
-    st.markdown("### 📋 Chart Overview")
-    st.text_input("MRN", value="MRN-84729", disabled=True)
-    st.text_input("Attending", value="Dr. G. House", disabled=True)
+    st.markdown("### Patient Record Details")
+    st.text_input("Medical Record Number (MRN)", value="MRN-84729", disabled=True)
+    st.text_input("Attending Physician", value="G. House, MD", disabled=True)
     st.divider()
-    st.markdown("**Assessment Target:**")
-    st.caption("Mitigating treatment non-adherence driven by financial toxicity and comorbidity burden.")
+    st.markdown("**Assessment Objective:**")
+    st.caption("Quantitative evaluation of treatment non-adherence risk driven by financial toxicity, utilizing historical MEPS modeling.")
 
 # -------------------------------------------------------------------------
 # MAIN DASHBOARD
 # -------------------------------------------------------------------------
-st.title("Oncology Financial Toxicity & Adherence Dashboard")
-st.markdown("Resource Allocation & Subsidy Risk Profiler")
+st.title("Oncology Subsidy Allocation & Financial Toxicity Risk Model")
+st.markdown("Department of Biostatistics | Clinical Decision Support System")
 st.divider()
 
-col1, col2, col3 = st.columns(3, gap="large")
+col1, col2, col3 = st.columns(3, gap="medium")
 
 with col1:
-    st.markdown("### Demographics")
-    patient_age = st.number_input("Age", min_value=0, max_value=120, value=55)
+    st.markdown("### I. Demographics")
+    patient_age = st.number_input("Age (Years)", min_value=0, max_value=120, value=55)
     patient_sex = st.radio("Sex at Birth", options=[1, 2], format_func=lambda x: "Male" if x == 1 else "Female", horizontal=True)
     
-    region_choice = st.selectbox("Region", options=["Northeast", "Midwest", "South", "West"])
+    region_choice = st.selectbox("Geographic Region", options=["Northeast", "Midwest", "South", "West"])
     region_map = {"Northeast": 1, "Midwest": 2, "South": 3, "West": 4}
     region_idx = region_map[region_choice]
     
-    st.markdown("### Coverage")
-    patient_vet = 1 if st.checkbox("VA Benefits") else 0
-    patient_mil = 1 if st.checkbox("Tricare") else 0
-    patient_fed = 1 if st.checkbox("FEHB") else 0
+    st.markdown("### II. Coverage Parameters")
+    patient_vet = 1 if st.checkbox("Veterans Affairs (VA)") else 0
+    patient_mil = 1 if st.checkbox("Military / Tricare") else 0
+    patient_fed = 1 if st.checkbox("Federal Employee (FEHB)") else 0
 
 with col2:
-    st.markdown("### Socioeconomic Data")
-    patient_faminc = st.number_input("Annual Family Income ($)", min_value=0.0, value=45000.0, step=1000.0)
-    patient_totslf = st.number_input("Current OOP Burden ($)", min_value=0.0, value=2500.0, step=100.0)
+    st.markdown("### III. Socioeconomic Data")
+    patient_faminc = st.number_input("Annual Family Income (USD)", min_value=0.0, value=45000.0, step=1000.0)
+    patient_totslf = st.number_input("Current Out-of-Pocket Burden (USD)", min_value=0.0, value=2500.0, step=100.0)
     
     patient_famsze = st.number_input("Household Size", min_value=1, value=2)
-    patient_pov = st.slider("Poverty Tier (1=Poor, 5=High)", min_value=1, max_value=5, value=3)
+    patient_pov = st.slider("Federal Poverty Category (1=Poor, 5=High)", min_value=1, max_value=5, value=3)
     
-    st.markdown("### SDoH Flags")
+    st.markdown("### IV. SDoH Risk Factors")
     patient_foodst = 1 if st.checkbox("Food Insecurity (SNAP)") else 2
-    patient_adl = 1 if st.checkbox("ADL Assistance Needed") else 2
-    patient_ddnwrk = st.number_input("Days Missed Work", min_value=0, value=0)
-    patient_phq2 = st.slider("PHQ-2 Score", min_value=0, max_value=6, value=0)
+    patient_adl = 1 if st.checkbox("ADL Assistance Required") else 2
+    patient_ddnwrk = st.number_input("Days Missed Work (Illness)", min_value=0, value=0)
+    patient_phq2 = st.slider("PHQ-2 Depression Screener", min_value=0, max_value=6, value=0)
 
 with col3:
-    st.markdown("### Clinical Profile")
+    st.markdown("### V. Clinical Pathology")
     cancer_list = ["Bladder", "Breast", "Cervix", "Colon", "Lung", "Lymphoma", "Melanoma", "Other", "Prostate", "Skin (Non-Melanoma)", "Skin (Unknown)", "Uterus", "None"]
-    cancer_choice = st.selectbox("Primary Oncology Dx", options=cancer_list, index=3) 
+    cancer_choice = st.selectbox("Primary Oncology Diagnosis", options=cancer_list, index=3) 
     
     disease_list = ["Diabetes", "High Blood Pressure", "Coronary Heart Disease", "Angina", "Heart Attack", "Other Heart Disease", "Stroke", "High Cholesterol", "Emphysema", "Asthma", "Chronic Bronchitis", "Arthritis"]
-    selected_diseases = st.multiselect("Comorbidities", options=disease_list)
+    selected_diseases = st.multiselect("Documented Comorbidities", options=disease_list)
     
-    st.markdown("### 12-Mo Utilization")
+    st.markdown("### VI. Utilization (Trailing 12 Mo)")
     patient_ipdis = st.number_input("Inpatient Admissions", min_value=0, value=0)
     patient_ipngtd = st.number_input("Total Inpatient Days", min_value=0, value=0)
-    patient_ertot = st.number_input("ED Visits", min_value=0, value=0)
+    patient_ertot = st.number_input("Emergency Department Visits", min_value=0, value=0)
 
 # -------------------------------------------------------------------------
 # BACKEND & RESULTS
 # -------------------------------------------------------------------------
 st.divider()
-if st.button("Calculate Subsidy & Risk Profile", type="primary"):
-    with st.spinner("Analyzing patient vector..."):
+if st.button("Execute Statistical Subsidy Calculation", type="primary", use_container_width=True):
+    with st.spinner("Processing data vector..."):
         
         # Base Logic
         catastrophic_cost = 1 if patient_totslf > (0.10 * patient_faminc) else 0
@@ -201,17 +240,16 @@ if st.button("Calculate Subsidy & Risk Profile", type="primary"):
                 recommended_subsidy = max(0, recommended_subsidy)
                 st.metric(label="Target Subsidy Allocation", value=f"${recommended_subsidy:,.2f}")
                 
-                # Clinical Context Note
                 if patient_phq2 > 2 or catastrophic_cost == 1:
-                    st.warning("**Adherence Warning:** Patient flags positive for depressive symptoms or catastrophic out-of-pocket costs. Intervention recommended to prevent treatment drop-off.")
+                    st.info("Clinical Note: Patient flags positive for depressive symptoms or catastrophic out-of-pocket costs. Preemptive intervention recommended to maintain treatment adherence.")
                 else:
-                    st.success("Standard allocation path. No acute SDoH interventions flagged.")
+                    st.info("Clinical Note: Standard allocation path. No acute SDoH interventions flagged.")
             else:
                 st.metric(label="Target Subsidy Allocation", value="$0.00")
-                st.error("**Ineligible:** Income exceeds threshold.")
+                st.warning("Flag: Patient income exceeds statutory eligibility thresholds for Medicaid/CHIP allocation.")
 
         with res_col2:
-            st.markdown("### SHAP Feature Impact")
+            st.markdown("### Cost Driver Analysis (SHAP)")
             explainer = shap.Explainer(final_rf_model, X_train_selected)
             shap_values = explainer(new_patient_df)
             
